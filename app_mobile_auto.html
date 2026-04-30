@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Financeiro Casal Mobile</title>
+<style>
+:root{--bg:#07111f;--card:#102039;--muted:#91a7c4;--text:#f4f8ff;--green:#22c55e;--red:#ef4444;--blue:#38bdf8;--yellow:#f59e0b;--line:rgba(255,255,255,.1)}
+*{box-sizing:border-box}body{margin:0;background:#07111f;color:var(--text);font-family:Segoe UI,Arial,sans-serif}
+main{max-width:760px;margin:auto;padding:14px 12px 90px}.top{position:sticky;top:0;background:linear-gradient(180deg,#07111f 80%,rgba(7,17,31,.75));z-index:10;padding:12px 0}
+h1{font-size:22px;margin:0}.muted{color:var(--muted);font-size:13px}.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.grid{display:grid;gap:10px}.kpis{grid-template-columns:1fr 1fr;margin:12px 0}
+.card{background:linear-gradient(180deg,#132846,#0e1c32);border:1px solid var(--line);border-radius:18px;padding:14px;box-shadow:0 16px 40px rgba(0,0,0,.25)}
+.kpi small{color:var(--muted);display:block}.kpi b{display:block;font-size:22px;margin-top:6px}.green{color:var(--green)}.red{color:var(--red)}.yellow{color:var(--yellow)}
+button,input,select{border-radius:12px;border:1px solid var(--line);padding:12px;background:#0b1728;color:white;font-size:15px}
+button{cursor:pointer;font-weight:800}.primary{background:linear-gradient(135deg,var(--blue),#2563eb);border:0}.greenBg{background:linear-gradient(135deg,var(--green),#15803d);border:0}
+input,select{width:100%}.form{display:grid;grid-template-columns:1fr;gap:9px}
+table{width:100%;border-collapse:collapse;font-size:12.5px}td,th{padding:9px 6px;border-bottom:1px solid var(--line);text-align:left}th{color:var(--muted)}
+.pill{font-size:11px;padding:4px 7px;border-radius:99px}.prev{background:rgba(245,158,11,.15);color:#fcd34d}.real{background:rgba(34,197,94,.15);color:#86efac}.pend{background:rgba(239,68,68,.14);color:#fca5a5}
+.tabs{position:fixed;bottom:0;left:0;right:0;background:#09172a;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding:8px max(8px,env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom));z-index:99}
+.tabs button{background:transparent;border:0;color:var(--muted);padding:8px 2px;font-size:12px}.tabs button.active{color:white;background:rgba(56,189,248,.12)}
+.section{display:none}.section.active{display:block}.status{font-size:12px;color:var(--muted);margin-top:6px}.danger{color:#fca5a5}
+#apiBox{display:none;margin-top:10px}.install{display:none}
+</style>
+</head>
+<body>
+<main>
+<div class="top">
+  <div class="row" style="justify-content:space-between">
+    <div><h1>Financeiro Casal</h1><div id="syncStatus" class="status">Aguardando sincronização...</div></div>
+    <button onclick="toggleApi()">⚙️</button>
+  </div>
+  <div id="apiBox" class="card">
+    <div class="muted">Cole a URL do Apps Script apenas uma vez. Depois o app sincroniza sozinho ao abrir.</div>
+    <input id="api" placeholder="URL do Apps Script Web App">
+    <button class="primary" style="width:100%;margin-top:8px" onclick="salvarApi(true)">Salvar e sincronizar</button>
+    <button id="installBtn" class="greenBg install" style="width:100%;margin-top:8px">Instalar na tela inicial</button>
+  </div>
+</div>
+
+<section id="home" class="section active">
+  <input id="mes" type="month" onchange="sincronizar()">
+  <div class="grid kpis">
+    <div class="card kpi"><small>Saldo projetado</small><b id="saldo">R$ 0</b></div>
+    <div class="card kpi"><small>Pendente</small><b id="pendente" class="yellow">R$ 0</b></div>
+    <div class="card kpi"><small>Receitas</small><b id="receitas" class="green">R$ 0</b></div>
+    <div class="card kpi"><small>Despesas</small><b id="despesas" class="red">R$ 0</b></div>
+  </div>
+  <div class="card"><h3>Vencimentos próximos</h3><table id="venc"></table></div>
+</section>
+
+<section id="lancar" class="section">
+  <div class="card">
+    <h3>Lançamento rápido</h3>
+    <div class="form">
+      <input id="data" type="date">
+      <input id="desc" placeholder="Descrição">
+      <select id="tipo"><option>Despesa</option><option>Receita</option></select>
+      <input id="valor" type="number" step="0.01" placeholder="Valor">
+      <select id="conta"><option>Conta</option><option>Cartão</option><option>Dinheiro</option></select>
+      <select id="pessoa"><option>Casal</option><option>Carlos</option><option>Denise</option><option>Família</option></select>
+      <button class="primary" onclick="lancar()">Lançar e sincronizar</button>
+    </div>
+  </div>
+</section>
+
+<section id="mesview" class="section">
+  <div class="card">
+    <h3>Gerar mês automático</h3>
+    <p class="muted">Cria salários e contas fixas na base, sem duplicar.</p>
+    <button class="greenBg" style="width:100%" onclick="gerarMes()">Gerar previstos deste mês</button>
+  </div>
+  <div class="card" style="margin-top:10px"><h3>Contas do mês</h3><table id="projecao"></table></div>
+</section>
+
+<section id="ajuda" class="section">
+  <div class="card">
+    <h3>Como usar</h3>
+    <p>1. Cole a URL uma vez na engrenagem ⚙️.</p>
+    <p>2. O app sincroniza sozinho ao abrir.</p>
+    <p>3. Para lançar, use a aba “Lançar”.</p>
+    <p>4. Para contas fixas, use “Gerar previstos deste mês”.</p>
+    <p>5. Depois marque como pago na lista do mês.</p>
+  </div>
+</section>
+</main>
+
+<div class="tabs">
+  <button class="active" onclick="tab('home',this)">Resumo</button>
+  <button onclick="tab('lancar',this)">Lançar</button>
+  <button onclick="tab('mesview',this)">Mês</button>
+  <button onclick="tab('ajuda',this)">Ajuda</button>
+</div>
+
+<script>
+let apiUrl=localStorage.getItem('apiFinanceiro')||''; api.value=apiUrl;
+mes.value=new Date().toISOString().slice(0,7); data.value=new Date().toISOString().slice(0,10);
+let linhas=[]; let deferredPrompt=null;
+const brl=v=>(Number(v)||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+function toggleApi(){apiBox.style.display=apiBox.style.display==='block'?'none':'block'}
+function salvarApi(sync){localStorage.setItem('apiFinanceiro',api.value.trim());apiUrl=api.value.trim();syncStatus.textContent='URL salva.'; if(sync) sincronizar();}
+function tab(id,btn){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
+async function sincronizar(){
+  apiUrl=api.value.trim()||localStorage.getItem('apiFinanceiro')||'';
+  if(!apiUrl){syncStatus.innerHTML='<span class="danger">Cole a URL na engrenagem ⚙️</span>';apiBox.style.display='block';return}
+  try{
+    syncStatus.textContent='Sincronizando...';
+    const r=await fetch(apiUrl+'?action=projecao&mes='+mes.value+'&t='+Date.now());
+    const j=await r.json();
+    if(!j.ok) throw new Error('Resposta inválida');
+    linhas=j.data.linhas||[]; render(j.data.resumo||{});
+    syncStatus.textContent='Sincronizado: '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  }catch(e){syncStatus.innerHTML='<span class="danger">Falha ao sincronizar. Confira URL/permissão.</span>'}
+}
+async function post(payload){
+  const r=await fetch(apiUrl,{method:'POST',body:JSON.stringify(payload)});
+  return await r.json();
+}
+async function gerarMes(){
+  if(!apiUrl) return toggleApi();
+  if(!confirm('Gerar lançamentos previstos para '+mes.value+'?')) return;
+  const j=await post({action:'gerar_mes',mes:mes.value});
+  alert('Criados: '+j.criados); sincronizar();
+}
+async function lancar(){
+  if(!apiUrl) return toggleApi();
+  if(!desc.value||!valor.value) return alert('Preencha descrição e valor.');
+  await post({DATA:data.value,DESCRICAO:desc.value,TIPO:tipo.value,VALOR:Number(valor.value),CONTA:conta.value,PESSOA:pessoa.value,VENCIMENTO:data.value});
+  desc.value='';valor.value='';sincronizar();tab('home',document.querySelector('.tabs button'));
+}
+async function marcarPago(desc,data,tipo){
+  const status=tipo==='Receita'?'Recebido':'Pago';
+  await post({action:'marcar_pago',descricao:desc,data:data,status}); sincronizar();
+}
+function render(resumo){
+  saldo.textContent=brl(resumo.saldo); receitas.textContent=brl(resumo.receitas); despesas.textContent=brl(resumo.despesas); pendente.textContent=brl(resumo.pendente);
+  const hoje=new Date(); hoje.setHours(0,0,0,0); const em7=new Date(hoje); em7.setDate(hoje.getDate()+7);
+  const venc=linhas.filter(x=>x.TIPO==='Despesa'&&x.STATUS!=='Pago').filter(x=>{let d=new Date(x.DATA+'T00:00:00'); return d>=hoje&&d<=em7});
+  document.getElementById('venc').innerHTML='<tr><th>Data</th><th>Conta</th><th>Valor</th></tr>'+venc.map(x=>`<tr><td>${fmt(x.DATA)}</td><td>${x.DESCRICAO}</td><td>${brl(x.VALOR)}</td></tr>`).join('');
+  document.getElementById('projecao').innerHTML='<tr><th>Data</th><th>Descrição</th><th>Valor</th><th>Status</th><th></th></tr>'+
+  linhas.map(x=>`<tr><td>${fmt(x.DATA)}</td><td>${x.DESCRICAO}<br><span class="muted">${x.TIPO} • ${x.ORIGEM}</span></td><td>${brl(x.VALOR)}</td><td><span class="pill ${x.STATUS==='Pago'||x.STATUS==='Recebido'?'real':'pend'}">${x.STATUS}</span></td><td>${x.STATUS==='Pago'||x.STATUS==='Recebido'?'':'<button onclick="marcarPago(`'+String(x.DESCRICAO).replaceAll('`','')+'`,`'+x.DATA+'`,`'+x.TIPO+'`)">Pagar</button>'}</td></tr>`).join('');
+}
+function fmt(v){try{return new Date(v+'T00:00:00').toLocaleDateString('pt-BR')}catch(e){return v}}
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;installBtn.style.display='block';});
+installBtn.onclick=async()=>{if(deferredPrompt){deferredPrompt.prompt();deferredPrompt=null;installBtn.style.display='none'}};
+window.addEventListener('load',()=>setTimeout(sincronizar,500));
+</script>
+</body>
+</html>
