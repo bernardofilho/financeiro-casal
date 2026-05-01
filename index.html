@@ -2,146 +2,209 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Financeiro Casal Mobile</title>
+<title>Financeiro Enterprise Final</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-:root{--bg:#07111f;--card:#102039;--muted:#91a7c4;--text:#f4f8ff;--green:#22c55e;--red:#ef4444;--blue:#38bdf8;--yellow:#f59e0b;--line:rgba(255,255,255,.1)}
-*{box-sizing:border-box}body{margin:0;background:#07111f;color:var(--text);font-family:Segoe UI,Arial,sans-serif}
-main{max-width:760px;margin:auto;padding:14px 12px 90px}.top{position:sticky;top:0;background:linear-gradient(180deg,#07111f 80%,rgba(7,17,31,.75));z-index:10;padding:12px 0}
-h1{font-size:22px;margin:0}.muted{color:var(--muted);font-size:13px}.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.grid{display:grid;gap:10px}.kpis{grid-template-columns:1fr 1fr;margin:12px 0}
-.card{background:linear-gradient(180deg,#132846,#0e1c32);border:1px solid var(--line);border-radius:18px;padding:14px;box-shadow:0 16px 40px rgba(0,0,0,.25)}
-.kpi small{color:var(--muted);display:block}.kpi b{display:block;font-size:22px;margin-top:6px}.green{color:var(--green)}.red{color:var(--red)}.yellow{color:var(--yellow)}
-button,input,select{border-radius:12px;border:1px solid var(--line);padding:12px;background:#0b1728;color:white;font-size:15px}
-button{cursor:pointer;font-weight:800}.primary{background:linear-gradient(135deg,var(--blue),#2563eb);border:0}.greenBg{background:linear-gradient(135deg,var(--green),#15803d);border:0}
-input,select{width:100%}.form{display:grid;grid-template-columns:1fr;gap:9px}
-table{width:100%;border-collapse:collapse;font-size:12.5px}td,th{padding:9px 6px;border-bottom:1px solid var(--line);text-align:left}th{color:var(--muted)}
-.pill{font-size:11px;padding:4px 7px;border-radius:99px}.prev{background:rgba(245,158,11,.15);color:#fcd34d}.real{background:rgba(34,197,94,.15);color:#86efac}.pend{background:rgba(239,68,68,.14);color:#fca5a5}
-.tabs{position:fixed;bottom:0;left:0;right:0;background:#09172a;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding:8px max(8px,env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom));z-index:99}
-.tabs button{background:transparent;border:0;color:var(--muted);padding:8px 2px;font-size:12px}.tabs button.active{color:white;background:rgba(56,189,248,.12)}
-.section{display:none}.section.active{display:block}.status{font-size:12px;color:var(--muted);margin-top:6px}.danger{color:#fca5a5}
-#apiBox{display:none;margin-top:10px}.install{display:none}
+:root{--bg:#f6f8fb;--panel:#fff;--text:#101828;--muted:#667085;--line:#e5e7eb;--primary:#2563eb;--green:#16a34a;--red:#dc2626;--yellow:#d97706;--shadow:0 18px 45px rgba(16,24,40,.08)}
+[data-theme="dark"]{--bg:#07111f;--panel:#102039;--text:#f8fafc;--muted:#91a7c4;--line:rgba(255,255,255,.1);--primary:#38bdf8;--green:#22c55e;--red:#ef4444;--yellow:#f59e0b;--shadow:0 18px 45px rgba(0,0,0,.3)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,Segoe UI,Arial,sans-serif}
+.app{display:grid;grid-template-columns:270px 1fr;min-height:100vh}.side{background:var(--panel);border-right:1px solid var(--line);padding:18px;position:sticky;top:0;height:100vh;box-shadow:var(--shadow)}
+.brand{font-weight:900;font-size:18px;margin-bottom:4px}.muted{color:var(--muted);font-size:13px}.nav button{display:block;width:100%;padding:12px 10px;border:0;background:transparent;color:var(--muted);text-align:left;border-radius:12px;font-weight:700;cursor:pointer;margin:3px 0}.nav button.active,.nav button:hover{background:rgba(37,99,235,.12);color:var(--text)}
+.main{padding:22px}.top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:16px}.toolbar{display:flex;gap:8px;flex-wrap:wrap}button,input,select{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:12px;padding:10px;font-size:14px}button{cursor:pointer;font-weight:800}.primary{background:var(--primary);border:0;color:white}.danger{background:var(--red);border:0;color:white}.okbtn{background:var(--green);border:0;color:white}.warn{background:var(--yellow);border:0;color:white}
+.grid{display:grid;gap:14px}.kpis{grid-template-columns:repeat(4,1fr)}.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow)}.kpi .label{color:var(--muted);font-size:12px;text-transform:uppercase;font-weight:800}.kpi .val{font-size:27px;font-weight:900;margin-top:8px}.green{color:var(--green)}.red{color:var(--red)}.yellow{color:var(--yellow)}
+.section{display:none}.section.active{display:block}.two{grid-template-columns:1.1fr .9fr}.form{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.wide{grid-column:span 2}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{color:var(--muted);font-size:11px;text-transform:uppercase}.tablewrap{overflow:auto;max-height:560px}.pill{font-size:11px;border-radius:99px;padding:4px 7px;font-weight:800}.pago{background:rgba(22,163,74,.14);color:var(--green)}.pend{background:rgba(220,38,38,.14);color:var(--red)}.prev{background:rgba(217,119,6,.14);color:var(--yellow)}
+.small{font-size:12px;padding:7px 8px}.config{display:none}.chart{min-height:320px}.menuBtn{display:none}
+@media(max-width:980px){.app{grid-template-columns:1fr}.side{position:fixed;left:-290px;z-index:50;transition:.25s}.side.open{left:0}.menuBtn{display:inline-block}.kpis,.two,.form{grid-template-columns:1fr}.wide{grid-column:auto}.main{padding:14px}.chart{min-height:240px}}
 </style>
 </head>
-<body>
-<main>
-<div class="top">
-  <div class="row" style="justify-content:space-between">
-    <div><h1>Financeiro Casal</h1><div id="syncStatus" class="status">Aguardando sincronização...</div></div>
-    <button onclick="toggleApi()">⚙️</button>
+<body data-theme="dark">
+<div class="app">
+<aside class="side" id="side">
+  <div class="brand">Financeiro Enterprise</div>
+  <div class="muted">Casal • Projeção • Cartão</div>
+  <hr style="border:0;border-top:1px solid var(--line);margin:16px 0">
+  <div class="nav">
+    <button class="active" onclick="show('dashboard',this)">Dashboard</button>
+    <button onclick="show('lancamentos',this)">Lançamentos</button>
+    <button onclick="show('projecao',this)">Projeção 12 meses</button>
+    <button onclick="show('recorrentes',this)">Contas fixas</button>
+    <button onclick="show('cartao',this)">Cartão</button>
+    <button onclick="show('categorias',this)">Categorias/Regras</button>
+    <button onclick="show('diagnostico',this)">Diagnóstico</button>
   </div>
-  <div id="apiBox" class="card">
-    <div class="muted">Cole a URL do Apps Script apenas uma vez. Depois o app sincroniza sozinho ao abrir.</div>
-    <input id="api" placeholder="URL do Apps Script Web App">
-    <button class="primary" style="width:100%;margin-top:8px" onclick="salvarApi(true)">Salvar e sincronizar</button>
-    <button id="installBtn" class="greenBg install" style="width:100%;margin-top:8px">Instalar na tela inicial</button>
-  </div>
-</div>
-
-<section id="home" class="section active">
-  <input id="mes" type="month" onchange="sincronizar()">
-  <div class="grid kpis">
-    <div class="card kpi"><small>Saldo projetado</small><b id="saldo">R$ 0</b></div>
-    <div class="card kpi"><small>Pendente</small><b id="pendente" class="yellow">R$ 0</b></div>
-    <div class="card kpi"><small>Receitas</small><b id="receitas" class="green">R$ 0</b></div>
-    <div class="card kpi"><small>Despesas</small><b id="despesas" class="red">R$ 0</b></div>
-  </div>
-  <div class="card"><h3>Vencimentos próximos</h3><table id="venc"></table></div>
-</section>
-
-<section id="lancar" class="section">
-  <div class="card">
-    <h3>Lançamento rápido</h3>
-    <div class="form">
-      <input id="data" type="date">
-      <input id="desc" placeholder="Descrição">
-      <select id="tipo"><option>Despesa</option><option>Receita</option></select>
-      <input id="valor" type="number" step="0.01" placeholder="Valor">
-      <select id="conta"><option>Conta</option><option>Cartão</option><option>Dinheiro</option></select>
-      <select id="pessoa"><option>Casal</option><option>Carlos</option><option>Denise</option><option>Família</option></select>
-      <button class="primary" onclick="lancar()">Lançar e sincronizar</button>
+</aside>
+<main class="main">
+  <div class="top">
+    <div>
+      <button class="menuBtn" onclick="side.classList.toggle('open')">☰</button>
+      <h1 id="title" style="margin:0">Dashboard</h1>
+      <div id="status" class="muted">Aguardando sincronização</div>
+    </div>
+    <div class="toolbar">
+      <input id="mes" type="month">
+      <button onclick="toggleTheme()">Tema</button>
+      <button class="primary" onclick="sync()">Sincronizar</button>
+      <button onclick="toggleConfig()">URL</button>
     </div>
   </div>
-</section>
-
-<section id="mesview" class="section">
-  <div class="card">
-    <h3>Gerar mês automático</h3>
-    <p class="muted">Cria salários e contas fixas na base, sem duplicar.</p>
-    <button class="greenBg" style="width:100%" onclick="gerarMes()">Gerar previstos deste mês</button>
+  <div id="config" class="card config">
+    <input id="api" placeholder="URL Apps Script /exec">
+    <button class="primary" onclick="saveApi(true)">Salvar e sincronizar</button>
+    <button class="warn" onclick="setup()">Setup</button>
+    <button onclick="diagnostic()">Diagnóstico</button>
+    <pre id="diag" class="muted" style="white-space:pre-wrap"></pre>
   </div>
-  <div class="card" style="margin-top:10px"><h3>Contas do mês</h3><table id="projecao"></table></div>
-</section>
 
-<section id="ajuda" class="section">
-  <div class="card">
-    <h3>Como usar</h3>
-    <p>1. Cole a URL uma vez na engrenagem ⚙️.</p>
-    <p>2. O app sincroniza sozinho ao abrir.</p>
-    <p>3. Para lançar, use a aba “Lançar”.</p>
-    <p>4. Para contas fixas, use “Gerar previstos deste mês”.</p>
-    <p>5. Depois marque como pago na lista do mês.</p>
-  </div>
-</section>
+  <section id="dashboard" class="section active">
+    <div class="grid kpis">
+      <div class="card kpi"><div class="label">Saldo previsto</div><div id="kSaldo" class="val">R$ 0</div></div>
+      <div class="card kpi"><div class="label">Receitas</div><div id="kRec" class="val green">R$ 0</div></div>
+      <div class="card kpi"><div class="label">Despesas</div><div id="kDesp" class="val red">R$ 0</div></div>
+      <div class="card kpi"><div class="label">Pendente</div><div id="kPend" class="val yellow">R$ 0</div></div>
+    </div>
+    <div class="grid two" style="margin-top:14px">
+      <div class="card"><h3>Receita x Despesa</h3><canvas id="chartBar" class="chart"></canvas></div>
+      <div class="card"><h3>Gastos por categoria</h3><canvas id="chartPie" class="chart"></canvas></div>
+    </div>
+  </section>
+
+  <section id="lancamentos" class="section">
+    <div class="card">
+      <h3>Novo lançamento</h3>
+      <div class="form">
+        <input id="fData" type="date">
+        <input id="fDesc" class="wide" placeholder="Descrição">
+        <select id="fTipo"><option>Despesa</option><option>Receita</option></select>
+        <input id="fValor" type="number" step="0.01" placeholder="Valor">
+        <input id="fCategoria" placeholder="Categoria opcional">
+        <input id="fSub" placeholder="Subcategoria opcional">
+        <select id="fConta"><option>Conta</option><option>Cartão</option><option>Dinheiro</option></select>
+        <select id="fPessoa"><option>Casal</option><option>Carlos</option><option>Denise</option><option>Família</option></select>
+        <button class="primary" onclick="lancar()">Lançar</button>
+      </div>
+    </div>
+    <div class="card" style="margin-top:14px">
+      <div class="toolbar"><input id="search" placeholder="Pesquisar" oninput="renderTable()"><button onclick="downloadCSV(currentRows,'lancamentos_mes.csv')">Baixar CSV</button></div>
+      <div class="tablewrap"><table id="tbl"></table></div>
+    </div>
+  </section>
+
+  <section id="projecao" class="section">
+    <div class="card">
+      <button class="okbtn" onclick="gerarMes()">Gerar mês atual</button>
+      <button class="warn" onclick="gerar12()">Gerar próximos 12 meses</button>
+      <button onclick="downloadCSV(projRows,'projecao_12_meses.csv')">Baixar projeção CSV</button>
+    </div>
+    <div class="card" style="margin-top:14px"><h3>Projeção 12 meses</h3><div class="tablewrap"><table id="tblProj"></table></div></div>
+  </section>
+
+  <section id="recorrentes" class="section">
+    <div class="card"><h3>Contas fixas / recorrentes</h3><div class="tablewrap"><table id="tblRec"></table></div></div>
+  </section>
+
+  <section id="cartao" class="section">
+    <div class="card">
+      <h3>Compra parcelada</h3>
+      <div class="form">
+        <input id="cData" type="date">
+        <input id="cDesc" class="wide" placeholder="Descrição">
+        <input id="cTotal" type="number" step="0.01" placeholder="Valor total">
+        <input id="cParcelas" type="number" placeholder="Parcelas">
+        <input id="cCategoria" placeholder="Categoria">
+        <select id="cPessoa"><option>Casal</option><option>Carlos</option><option>Denise</option><option>Família</option></select>
+        <button class="primary" onclick="lancarCartao()">Lançar cartão</button>
+      </div>
+    </div>
+    <div class="card" style="margin-top:14px"><h3>Cartão</h3><div class="tablewrap"><table id="tblCartao"></table></div></div>
+  </section>
+
+  <section id="categorias" class="section">
+    <div class="grid two">
+      <div class="card"><h3>Categorias</h3><div class="tablewrap"><table id="tblCat"></table></div></div>
+      <div class="card"><h3>Regras automáticas</h3><div class="tablewrap"><table id="tblRegras"></table></div></div>
+    </div>
+  </section>
+
+  <section id="diagnostico" class="section">
+    <div class="card"><button onclick="diagnostic()">Rodar diagnóstico</button><pre id="diag2" class="muted" style="white-space:pre-wrap"></pre></div>
+  </section>
 </main>
-
-<div class="tabs">
-  <button class="active" onclick="tab('home',this)">Resumo</button>
-  <button onclick="tab('lancar',this)">Lançar</button>
-  <button onclick="tab('mesview',this)">Mês</button>
-  <button onclick="tab('ajuda',this)">Ajuda</button>
 </div>
-
 <script>
 let apiUrl=localStorage.getItem('apiFinanceiro')||''; api.value=apiUrl;
-mes.value=new Date().toISOString().slice(0,7); data.value=new Date().toISOString().slice(0,10);
-let linhas=[]; let deferredPrompt=null;
+mes.value=new Date().toISOString().slice(0,7); fData.value=new Date().toISOString().slice(0,10); cData.value=new Date().toISOString().slice(0,10);
+let currentRows=[], projRows=[], cats=[], regras=[], recs=[], cartao=[], charts={};
 const brl=v=>(Number(v)||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
-function toggleApi(){apiBox.style.display=apiBox.style.display==='block'?'none':'block'}
-function salvarApi(sync){localStorage.setItem('apiFinanceiro',api.value.trim());apiUrl=api.value.trim();syncStatus.textContent='URL salva.'; if(sync) sincronizar();}
-function tab(id,btn){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
-async function sincronizar(){
-  apiUrl=api.value.trim()||localStorage.getItem('apiFinanceiro')||'';
-  if(!apiUrl){syncStatus.innerHTML='<span class="danger">Cole a URL na engrenagem ⚙️</span>';apiBox.style.display='block';return}
+function show(id,btn){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');title.textContent=btn.textContent;side.classList.remove('open')}
+function toggleTheme(){document.body.dataset.theme=document.body.dataset.theme==='dark'?'light':'dark';}
+function toggleConfig(){config.style.display=config.style.display==='block'?'none':'block'}
+function saveApi(run){localStorage.setItem('apiFinanceiro',api.value.trim());apiUrl=api.value.trim(); if(run) sync();}
+function jsonp(params){
+  return new Promise((resolve,reject)=>{
+    apiUrl=api.value.trim()||localStorage.getItem('apiFinanceiro')||'';
+    if(!apiUrl) return reject(new Error('Configure a URL do Apps Script'));
+    const cb='cb_'+Date.now()+'_'+Math.floor(Math.random()*99999);
+    params.callback=cb; params.t=Date.now();
+    window[cb]=(data)=>{delete window[cb]; sc.remove(); resolve(data);};
+    const sc=document.createElement('script'); sc.onerror=()=>{delete window[cb]; sc.remove(); reject(new Error('Falha de conexão JSONP'));};
+    sc.src=apiUrl+'?'+new URLSearchParams(params).toString(); document.body.appendChild(sc);
+  });
+}
+async function setup(){let j=await jsonp({action:'setup'}); diag.textContent=JSON.stringify(j,null,2); await sync();}
+async function diagnostic(){let j=await jsonp({action:'diagnostico'}); diag.textContent=diag2.textContent=JSON.stringify(j,null,2);}
+async function sync(){
   try{
-    syncStatus.textContent='Sincronizando...';
-    const r=await fetch(apiUrl+'?action=projecao&mes='+mes.value+'&t='+Date.now());
-    const j=await r.json();
-    if(!j.ok) throw new Error('Resposta inválida');
-    linhas=j.data.linhas||[]; render(j.data.resumo||{});
-    syncStatus.textContent='Sincronizado: '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
-  }catch(e){syncStatus.innerHTML='<span class="danger">Falha ao sincronizar. Confira URL/permissão.</span>'}
-}
-async function post(payload){
-  const r=await fetch(apiUrl,{method:'POST',body:JSON.stringify(payload)});
-  return await r.json();
-}
-async function gerarMes(){
-  if(!apiUrl) return toggleApi();
-  if(!confirm('Gerar lançamentos previstos para '+mes.value+'?')) return;
-  const j=await post({action:'gerar_mes',mes:mes.value});
-  alert('Criados: '+j.criados); sincronizar();
+    status.textContent='Sincronizando...';
+    const [p, pr, ca, re, ct] = await Promise.all([
+      jsonp({action:'projecao',mes:mes.value,months:12}),
+      jsonp({action:'recorrentes'}),
+      jsonp({action:'categorias'}),
+      jsonp({action:'regras'}),
+      jsonp({action:'cartao'})
+    ]);
+    if(!p.ok) throw new Error(p.erro);
+    currentRows=p.data.meses[0].linhas||[]; projRows=p.data.meses||[]; recs=pr.data||[]; cats=ca.data||[]; regras=re.data||[]; cartao=ct.data||[];
+    renderAll(); status.textContent='Sincronizado: '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  }catch(e){status.textContent='Erro: '+e.message; config.style.display='block';}
 }
 async function lancar(){
-  if(!apiUrl) return toggleApi();
-  if(!desc.value||!valor.value) return alert('Preencha descrição e valor.');
-  await post({DATA:data.value,DESCRICAO:desc.value,TIPO:tipo.value,VALOR:Number(valor.value),CONTA:conta.value,PESSOA:pessoa.value,VENCIMENTO:data.value});
-  desc.value='';valor.value='';sincronizar();tab('home',document.querySelector('.tabs button'));
+  const p={action:'lancar',DATA:fData.value,DESCRICAO:fDesc.value,TIPO:fTipo.value,VALOR:fValor.value,CATEGORIA:fCategoria.value,SUBCATEGORIA:fSub.value,CONTA:fConta.value,PESSOA:fPessoa.value};
+  let j=await jsonp(p); if(!j.ok) return alert(j.erro); fDesc.value='';fValor.value=''; await sync();
 }
-async function marcarPago(desc,data,tipo){
-  const status=tipo==='Receita'?'Recebido':'Pago';
-  await post({action:'marcar_pago',descricao:desc,data:data,status}); sincronizar();
+async function editar(row){
+  const val=prompt('Novo valor (deixe vazio para cancelar):'); if(!val) return;
+  let j=await jsonp({action:'editar',rowNumber:row,VALOR:val}); if(!j.ok) return alert(j.erro); await sync();
 }
-function render(resumo){
-  saldo.textContent=brl(resumo.saldo); receitas.textContent=brl(resumo.receitas); despesas.textContent=brl(resumo.despesas); pendente.textContent=brl(resumo.pendente);
-  const hoje=new Date(); hoje.setHours(0,0,0,0); const em7=new Date(hoje); em7.setDate(hoje.getDate()+7);
-  const venc=linhas.filter(x=>x.TIPO==='Despesa'&&x.STATUS!=='Pago').filter(x=>{let d=new Date(x.DATA+'T00:00:00'); return d>=hoje&&d<=em7});
-  document.getElementById('venc').innerHTML='<tr><th>Data</th><th>Conta</th><th>Valor</th></tr>'+venc.map(x=>`<tr><td>${fmt(x.DATA)}</td><td>${x.DESCRICAO}</td><td>${brl(x.VALOR)}</td></tr>`).join('');
-  document.getElementById('projecao').innerHTML='<tr><th>Data</th><th>Descrição</th><th>Valor</th><th>Status</th><th></th></tr>'+
-  linhas.map(x=>`<tr><td>${fmt(x.DATA)}</td><td>${x.DESCRICAO}<br><span class="muted">${x.TIPO} • ${x.ORIGEM}</span></td><td>${brl(x.VALOR)}</td><td><span class="pill ${x.STATUS==='Pago'||x.STATUS==='Recebido'?'real':'pend'}">${x.STATUS}</span></td><td>${x.STATUS==='Pago'||x.STATUS==='Recebido'?'':'<button onclick="marcarPago(`'+String(x.DESCRICAO).replaceAll('`','')+'`,`'+x.DATA+'`,`'+x.TIPO+'`)">Pagar</button>'}</td></tr>`).join('');
+async function excluir(row,desc){if(!row) return alert('Item previsto. Gere o mês primeiro.'); if(!confirm('Excluir '+desc+'?'))return;let j=await jsonp({action:'excluir',rowNumber:row}); if(!j.ok)return alert(j.erro); await sync();}
+async function pagar(row,tipo){if(!row)return alert('Item previsto. Gere o mês primeiro.');let j=await jsonp({action:'marcar_pago',rowNumber:row,status:tipo==='Receita'?'Recebido':'Pago'}); if(!j.ok)return alert(j.erro); await sync();}
+async function gerarMes(){let j=await jsonp({action:'gerar_mes',mes:mes.value}); alert('Criados: '+(j.criados&&j.criados.criados?j.criados.criados:j.criados)); await sync();}
+async function gerar12(){let j=await jsonp({action:'gerar_12_meses',start:mes.value,months:12}); alert('Criados: '+(j.criados&&j.criados.criados?j.criados.criados:j.criados)); await sync();}
+async function lancarCartao(){let j=await jsonp({action:'lancar_cartao',DATA_COMPRA:cData.value,DESCRICAO:cDesc.value,VALOR_TOTAL:cTotal.value,PARCELAS:cParcelas.value,CATEGORIA:cCategoria.value,PESSOA:cPessoa.value}); if(!j.ok)return alert(j.erro); cDesc.value='';cTotal.value=''; await sync();}
+function renderAll(){renderKpis();renderTable();renderProjection();renderSimple(tblRec,recs);renderSimple(tblCat,cats);renderSimple(tblRegras,regras);renderSimple(tblCartao,cartao);renderCharts();}
+function renderKpis(){let r=projRows[0]?.resumo||{};kSaldo.textContent=brl(r.saldoPrevisto);kRec.textContent=brl(r.receitasPrev);kDesp.textContent=brl(r.despesasPrev);kPend.textContent=brl(r.pendente);}
+function renderTable(){
+  let q=(search?.value||'').toLowerCase();
+  let rows=currentRows.filter(r=>!q||String(r.DESCRICAO).toLowerCase().includes(q)||String(r.CATEGORIA).toLowerCase().includes(q));
+  tbl.innerHTML='<tr><th>Data</th><th>Descrição</th><th>Tipo</th><th>Categoria</th><th>Valor</th><th>Status</th><th>Origem</th><th>Ações</th></tr>'+rows.map(r=>{
+    let row=r.ROW_NUMBER||''; let actions=`<button class="small" onclick="pagar('${row}','${r.TIPO}')">Pagar</button> <button class="small" onclick="editar('${row}')">Editar</button> <button class="small danger" onclick="excluir('${row}','${safe(r.DESCRICAO)}')">Excluir</button>`;
+    return `<tr><td>${fmt(r.DATA)}</td><td>${r.DESCRICAO}<br><span class="muted">${r.PESSOA||''} • ${r.CONTA||''}</span></td><td>${r.TIPO}</td><td>${r.CATEGORIA||''}</td><td>${brl(r.VALOR)}</td><td>${pill(r.STATUS)}</td><td>${r.ORIGEM||''}</td><td>${actions}</td></tr>`;
+  }).join('');
 }
+function renderProjection(){
+  tblProj.innerHTML='<tr><th>Mês</th><th>Receitas Prev.</th><th>Despesas Prev.</th><th>Real. Receita</th><th>Real. Despesa</th><th>Saldo</th><th>Pendente</th></tr>'+projRows.map(m=>`<tr><td>${m.mes}</td><td>${brl(m.resumo.receitasPrev)}</td><td>${brl(m.resumo.despesasPrev)}</td><td>${brl(m.resumo.realizadoReceita)}</td><td>${brl(m.resumo.realizadoDespesa)}</td><td>${brl(m.resumo.saldoPrevisto)}</td><td>${brl(m.resumo.pendente)}</td></tr>`).join('');
+}
+function renderSimple(el,rows){if(!rows.length){el.innerHTML='<tr><td>Nenhum dado</td></tr>';return}let keys=Object.keys(rows[0]).filter(k=>k!=='ROW_NUMBER');el.innerHTML='<tr>'+keys.map(k=>'<th>'+k+'</th>').join('')+'</tr>'+rows.map(r=>'<tr>'+keys.map(k=>'<td>'+r[k]+'</td>').join('')+'</tr>').join('');}
+function renderCharts(){
+  const labels=projRows.map(x=>x.mes), rec=projRows.map(x=>x.resumo.receitasPrev), desp=projRows.map(x=>x.resumo.despesasPrev);
+  if(charts.bar) charts.bar.destroy(); charts.bar=new Chart(chartBar,{type:'bar',data:{labels,datasets:[{label:'Receitas',data:rec},{label:'Despesas',data:desp}]},options:{responsive:true,maintainAspectRatio:false}});
+  const map={};currentRows.filter(x=>x.TIPO==='Despesa').forEach(x=>map[x.CATEGORIA]=(map[x.CATEGORIA]||0)+Number(x.VALOR||0));
+  if(charts.pie) charts.pie.destroy(); charts.pie=new Chart(chartPie,{type:'doughnut',data:{labels:Object.keys(map),datasets:[{data:Object.values(map)}]},options:{responsive:true,maintainAspectRatio:false}});
+}
+function pill(s){let c=s==='Pago'||s==='Recebido'?'pago':s==='Previsto'?'prev':'pend';return '<span class="pill '+c+'">'+(s||'')+'</span>'}
+function downloadCSV(rows,name){if(!rows.length)return;let keys=Object.keys(rows[0]);let csv=[keys.join(',')].concat(rows.map(r=>keys.map(k=>`"${String(r[k]??'').replaceAll('"','""')}"`).join(','))).join('\n');let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=name;a.click();}
+function safe(s){return String(s).replaceAll("'","\\'")}
 function fmt(v){try{return new Date(v+'T00:00:00').toLocaleDateString('pt-BR')}catch(e){return v}}
-window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;installBtn.style.display='block';});
-installBtn.onclick=async()=>{if(deferredPrompt){deferredPrompt.prompt();deferredPrompt=null;installBtn.style.display='none'}};
-window.addEventListener('load',()=>setTimeout(sincronizar,500));
+window.addEventListener('load',()=>setTimeout(sync,500));
 </script>
-</body>
-</html>
+</body></html>
